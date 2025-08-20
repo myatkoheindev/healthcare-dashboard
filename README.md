@@ -30,6 +30,11 @@ $ composer update
 $ cp .env.example .env
 $ php artisan key:generate
 ```
+**Add Key:**
+
+```bash
+$ HEALTHCARE_API_URL = YOUR API URL
+```
 
 **Run database migrations:**
 
