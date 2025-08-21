@@ -17,17 +17,22 @@ class CreateMedicalRecord extends CreateRecord
     {
         $filePath = Storage::disk('public')->path($data['medical_image']);
 
+        $medicalRecord = MedicalRecord::create([
+            'medical_image' => $data['medical_image'],
+        ]);
+
         $response = Http::attach(
             'file', file_get_contents($filePath), basename($filePath)
         )->timeout(60)
-            ->post(env('HEALTHCARE_API_URL').'/ocr');
+            ->post(env('HEALTHCARE_API_URL').'/healthcare');
 
         $data = $response->json();
 
-        return MedicalRecord::create([
-            'medical_image' => $data['medical_image'],
+        $medicalRecord->update([
             'ocr_text' => $data['ocr'] ?? null,
-            'genai_result' => $data['genai'] ?? null,
+            'medical_entity' => $data['genai'] ? preg_replace('/^```json\s*|\s*```$/', '', $data['genai']) : null,
         ]);
+
+        return $medicalRecord->fresh();
     }
 }
